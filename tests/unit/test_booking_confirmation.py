@@ -7,6 +7,14 @@ def test_confirmation_gives_number_of_places_booked():
     assert message == "Great-booking complete! 3 places booked for Summer Cup."
 
 
+def test_confirmation_for_the_maximum_of_12_places():
+    message = bookingConfirmationMessage(12, {"name": "Winter Classic"})
+
+    assert message == (
+        "Great-booking complete! 12 places booked for Winter Classic."
+    )
+
+
 def test_confirmation_uses_singular_for_one_place():
     message = bookingConfirmationMessage(1, {"name": "Summer Cup"})
 

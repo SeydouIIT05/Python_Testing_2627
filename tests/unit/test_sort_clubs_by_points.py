@@ -52,3 +52,20 @@ def test_original_list_is_not_modified():
 
 def test_empty_list_gives_empty_board():
     assert sortClubsByPoints([]) == []
+
+
+def test_single_club_gives_single_row():
+    listOfClubs = [{"name": "Simply Lift", "points": "13"}]
+
+    assert sortClubsByPoints(listOfClubs) == listOfClubs
+
+
+def test_club_without_points_is_listed_last():
+    listOfClubs = [
+        {"name": "Iron Temple", "points": 0},
+        {"name": "She Lifts", "points": "1"},
+    ]
+
+    assert names(sortClubsByPoints(listOfClubs)) == [
+        "She Lifts", "Iron Temple"
+    ]

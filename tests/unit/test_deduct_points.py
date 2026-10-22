@@ -1,3 +1,5 @@
+import pytest
+
 from server import deductPoints
 
 
@@ -23,3 +25,25 @@ def test_deducts_from_points_already_updated():
     deductPoints(club, 3)
 
     assert club["points"] == 5
+
+
+@pytest.mark.parametrize(
+    "points, places, remaining",
+    [("13", 1, 12), ("13", 12, 1), (12, 12, 0), ("1", 1, 0)],
+)
+def test_remaining_points_cases(points, places, remaining):
+    club = {"points": points}
+
+    deductPoints(club, places)
+
+    assert club["points"] == remaining
+
+
+def test_only_points_are_changed():
+    club = {"name": "Simply Lift", "email": "john@simplylift.co",
+            "points": "13"}
+
+    deductPoints(club, 2)
+
+    assert club == {"name": "Simply Lift", "email": "john@simplylift.co",
+                    "points": 11}
