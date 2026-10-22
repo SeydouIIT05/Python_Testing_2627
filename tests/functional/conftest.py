@@ -10,8 +10,12 @@ import server
 
 @pytest.fixture(scope="session")
 def live_server():
-    """Lance l'application sur un port libre le temps des tests."""
-    httpd = make_server("127.0.0.1", 0, server.app)
+    """Lance l'application sur un port libre le temps des tests.
+
+    Le serveur traite les requêtes en parallèle : sinon une connexion ouverte
+    à l'avance par le navigateur peut bloquer les suivantes.
+    """
+    httpd = make_server("127.0.0.1", 0, server.app, threaded=True)
     thread = threading.Thread(target=httpd.serve_forever, daemon=True)
     thread.start()
     yield f"http://127.0.0.1:{httpd.server_port}"

@@ -4,6 +4,7 @@ from datetime import datetime
 from flask import Flask, render_template, request, redirect, flash, url_for
 
 MAX_PLACES_PER_COMPETITION = 12
+DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 PAST_COMPETITION_MESSAGE = (
     'Booking is closed: this competition has already taken place.'
 )
@@ -53,7 +54,7 @@ def index():
 def showSummary():
     club = findClubByEmail(request.form.get('email', ''), clubs)
     if club is None:
-        flash("Sorry, that email wasn't found.")
+        flash("Sorry, that email wasn't found.", 'error')
         return redirect(url_for('index'))
     return render_template(
         'welcome.html', club=club, competitions=competitions
@@ -65,7 +66,7 @@ def book(competition, club):
     foundClub = findClubByName(club, clubs)
     foundCompetition = findCompetitionByName(competition, competitions)
     if foundClub is None:
-        flash(CLUB_NOT_FOUND_MESSAGE)
+        flash(CLUB_NOT_FOUND_MESSAGE, 'error')
         return redirect(url_for('index'))
     if foundCompetition is None:
         return renderSummaryError(
@@ -79,14 +80,28 @@ def book(competition, club):
     )
 
 
-@app.template_global()
 def isPastCompetition(competition, now=None):
-    date = datetime.strptime(competition['date'], '%Y-%m-%d %H:%M:%S')
+    date = datetime.strptime(competition['date'], DATE_FORMAT)
     return date < (now or datetime.now())
 
 
+@app.template_global()
+def competitionStatus(competition, now=None):
+    if isPastCompetition(competition, now):
+        return 'closed'
+    if int(competition['numberOfPlaces']) <= 0:
+        return 'full'
+    return 'open'
+
+
+@app.template_filter('displayDate')
+def displayDate(date):
+    moment = datetime.strptime(date, DATE_FORMAT)
+    return f"{moment.day} {moment.strftime('%B %Y, %H:%M')}"
+
+
 def renderSummaryError(message, club, status=400):
-    flash(message)
+    flash(message, 'error')
     return render_template(
         'welcome.html', club=club, competitions=competitions
     ), status
@@ -138,7 +153,7 @@ def maxPlacesBookable(club, competition):
 
 
 def renderBookingError(message, club, competition):
-    flash(message)
+    flash(message, 'error')
     return render_template(
         'booking.html', club=club, competition=competition,
         maxPlaces=maxPlacesBookable(club, competition)
@@ -168,7 +183,7 @@ def purchasePlaces():
     )
     club = findClubByName(request.form.get('club'), clubs)
     if club is None:
-        flash(CLUB_NOT_FOUND_MESSAGE)
+        flash(CLUB_NOT_FOUND_MESSAGE, 'error')
         return redirect(url_for('index'))
     if competition is None:
         return renderSummaryError(COMPETITION_NOT_FOUND_MESSAGE, club, 404)
@@ -198,7 +213,7 @@ def purchasePlaces():
     )
     deductPoints(club, placesRequired)
     recordBooking(club, competition, placesRequired)
-    flash(bookingConfirmationMessage(placesRequired, competition))
+    flash(bookingConfirmationMessage(placesRequired, competition), 'success')
     return render_template(
         'welcome.html', club=club, competitions=competitions
     )

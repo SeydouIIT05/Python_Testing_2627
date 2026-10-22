@@ -1,39 +1,44 @@
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Summary | GUDLFT Registration</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-        <h2>Welcome, {{club['email']}} </h2><a href="{{url_for('logout')}}">Logout</a> | <a href="{{url_for('pointsBoard')}}">Points board</a>
+{% extends "base.html" %}
 
-    {% with messages = get_flashed_messages()%}
-    {% if messages %}
-        <ul>
-       {% for message in messages %}
-            <li>{{message}}</li>
-        {% endfor %}
-       </ul>
-    {% endif%}
-    <p>Points available: {{club['points']}}</p>
-    <h3>Competitions:</h3>
-    <ul>
-        {% for comp in competitions%}
-        <li>
-            {{comp['name']}}<br />
-            Date: {{comp['date']}}</br>
-            Number of Places: {{comp['numberOfPlaces']}}
-            {% if isPastCompetition(comp) %}
-            (Past competition - booking closed)
-            {%elif comp['numberOfPlaces']|int >0%}
-            <a href="{{ url_for('book',competition=comp['name'],club=club['name']) }}">Book Places</a>
-            {%endif%}
-        </li>
-        <hr />
-        {% endfor %}
-    </ul>
-    {%endwith%}
+{% block title %}Summary | GUDLFT Registration{% endblock %}
 
-</body>
-</html>
+{% block nav %}
+<a href="{{ url_for('pointsBoard') }}">Points board</a>
+<a href="{{ url_for('logout') }}">Logout</a>
+{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <div>
+        <p class="eyebrow">{{club['name']}}</p>
+        <h1>Welcome, {{club['email']}}</h1>
+    </div>
+    <div class="stat">
+        <p>Points available: {{club['points']}}</p>
+    </div>
+</section>
+
+<h2 class="section-title">Competitions</h2>
+<ul class="cards">
+    {% for comp in competitions %}
+    {% set status = competitionStatus(comp) %}
+    <li class="card card-{{ status }}">
+        <div class="card-head">
+            <h3>{{comp['name']}}</h3>
+            {% if status == 'closed' %}
+            <span class="badge badge-closed">Booking closed</span>
+            {% elif status == 'full' %}
+            <span class="badge badge-full">Full</span>
+            {% else %}
+            <span class="badge badge-open">Open</span>
+            {% endif %}
+        </div>
+        <p class="card-date">{{comp['date']|displayDate}}</p>
+        <p class="card-places">Places available: {{comp['numberOfPlaces']}}</p>
+        {% if status == 'open' %}
+        <a class="button" href="{{ url_for('book', competition=comp['name'], club=club['name']) }}">Book Places</a>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

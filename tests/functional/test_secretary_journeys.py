@@ -1,6 +1,6 @@
 import pytest
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
@@ -11,11 +11,31 @@ def page_text(browser):
     return browser.find_element(By.TAG_NAME, "body").text
 
 
+def has_left(page):
+    """Vrai dès que l'ancienne page ne répond plus.
+
+    Pendant la navigation, Edge signale l'ancienne page soit comme périmée,
+    soit comme « n'appartenant plus au document » : les deux comptent.
+    """
+    def predicate(browser):
+        try:
+            page.is_enabled()
+            return False
+        except WebDriverException:
+            return True
+    return predicate
+
+
+def is_loaded(browser):
+    return browser.execute_script("return document.readyState") == "complete"
+
+
 def click_and_wait(browser, element):
-    """Clique puis attend que la page suivante soit chargée."""
+    """Clique puis attend que la page suivante soit entièrement chargée."""
     current_page = browser.find_element(By.TAG_NAME, "html")
     element.click()
-    WebDriverWait(browser, 5).until(EC.staleness_of(current_page))
+    WebDriverWait(browser, 5).until(has_left(current_page))
+    WebDriverWait(browser, 5).until(is_loaded)
 
 
 def log_in(browser, site, email):
@@ -73,7 +93,7 @@ def test_booking_form_blocks_more_places_than_club_points(browser, site):
 def test_past_competition_cannot_be_booked(browser, site):
     log_in(browser, site, "john@simplylift.co")
 
-    assert "(Past competition - booking closed)" in page_text(browser)
+    assert "BOOKING CLOSED" in page_text(browser).upper()
     assert len(browser.find_elements(By.LINK_TEXT, "Book Places")) == 1
 
 
