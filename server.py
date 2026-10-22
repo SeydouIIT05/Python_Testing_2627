@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
-from flask import Flask,render_template,request,redirect,flash,url_for
+
+from flask import Flask, render_template, request, redirect, flash, url_for
 
 MAX_PLACES_PER_COMPETITION = 12
 PAST_COMPETITION_MESSAGE = (
@@ -12,14 +13,14 @@ COMPETITION_NOT_FOUND_MESSAGE = 'Sorry, that competition was not found.'
 
 def loadClubs():
     with open('clubs.json') as c:
-         listOfClubs = json.load(c)['clubs']
-         return listOfClubs
+        listOfClubs = json.load(c)['clubs']
+        return listOfClubs
 
 
 def loadCompetitions():
     with open('competitions.json') as comps:
-         listOfCompetitions = json.load(comps)['competitions']
-         return listOfCompetitions
+        listOfCompetitions = json.load(comps)['competitions']
+        return listOfCompetitions
 
 
 def findClubByEmail(email, listOfClubs):
@@ -42,21 +43,25 @@ app.secret_key = 'something_special'
 competitions = loadCompetitions()
 clubs = loadClubs()
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/showSummary',methods=['POST'])
+
+@app.route('/showSummary', methods=['POST'])
 def showSummary():
     club = findClubByEmail(request.form.get('email', ''), clubs)
     if club is None:
         flash("Sorry, that email wasn't found.")
         return redirect(url_for('index'))
-    return render_template('welcome.html',club=club,competitions=competitions)
+    return render_template(
+        'welcome.html', club=club, competitions=competitions
+    )
 
 
 @app.route('/book/<competition>/<club>')
-def book(competition,club):
+def book(competition, club):
     foundClub = findClubByName(club, clubs)
     foundCompetition = findCompetitionByName(competition, competitions)
     if foundClub is None:
@@ -156,7 +161,7 @@ def parsePlacesRequired(value):
     return places if places > 0 else None
 
 
-@app.route('/purchasePlaces',methods=['POST'])
+@app.route('/purchasePlaces', methods=['POST'])
 def purchasePlaces():
     competition = findCompetitionByName(
         request.form.get('competition'), competitions
@@ -188,11 +193,15 @@ def purchasePlaces():
             f'You cannot book more than {MAX_PLACES_PER_COMPETITION} places '
             'per competition.', club, competition
         )
-    competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
+    competition['numberOfPlaces'] = (
+        int(competition['numberOfPlaces']) - placesRequired
+    )
     deductPoints(club, placesRequired)
     recordBooking(club, competition, placesRequired)
     flash(bookingConfirmationMessage(placesRequired, competition))
-    return render_template('welcome.html', club=club, competitions=competitions)
+    return render_template(
+        'welcome.html', club=club, competitions=competitions
+    )
 
 
 def sortClubsByPoints(listOfClubs):
