@@ -52,6 +52,10 @@ def hasEnoughPoints(club, placesRequired):
     return placesRequired <= int(club['points'])
 
 
+def deductPoints(club, placesRequired):
+    club['points'] = int(club['points']) - placesRequired
+
+
 @app.route('/purchasePlaces',methods=['POST'])
 def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
@@ -63,6 +67,7 @@ def purchasePlaces():
             'booking.html', club=club, competition=competition
         ), 400
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
+    deductPoints(club, placesRequired)
     flash('Great-booking complete!')
     return render_template('welcome.html', club=club, competitions=competitions)
 
