@@ -73,7 +73,7 @@ def test_booking_form_blocks_more_places_than_club_points(browser, site):
 def test_past_competition_cannot_be_booked(browser, site):
     log_in(browser, site, "john@simplylift.co")
 
-    assert "(Past competition - booking closed)" in page_text(browser)
+    assert "BOOKING CLOSED" in page_text(browser).upper()
     assert len(browser.find_elements(By.LINK_TEXT, "Book Places")) == 1
 
 
