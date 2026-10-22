@@ -125,13 +125,26 @@ def renderBookingError(message, club, competition):
     ), 400
 
 
+def parsePlacesRequired(value):
+    try:
+        places = int(value)
+    except (TypeError, ValueError):
+        return None
+    return places if places > 0 else None
+
+
 @app.route('/purchasePlaces',methods=['POST'])
 def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
-    placesRequired = int(request.form['places'])
+    placesRequired = parsePlacesRequired(request.form.get('places'))
     if isPastCompetition(competition):
         return renderSummaryError(PAST_COMPETITION_MESSAGE, club)
+    if placesRequired is None:
+        return renderBookingError(
+            'Please enter a valid number of places (at least 1).',
+            club, competition
+        )
     if not hasEnoughPlaces(competition, placesRequired):
         return renderBookingError(
             placesLeftMessage(competition), club, competition
