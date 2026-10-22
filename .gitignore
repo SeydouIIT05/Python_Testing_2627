@@ -2,6 +2,10 @@ bin
 include
 lib
 .Python
-tests/
 .envrc
 __pycache__
+.venv/
+.coverage
+htmlcov/
+.pytest_cache/
+.idea/
