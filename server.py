@@ -6,6 +6,8 @@ MAX_PLACES_PER_COMPETITION = 12
 PAST_COMPETITION_MESSAGE = (
     'Booking is closed: this competition has already taken place.'
 )
+CLUB_NOT_FOUND_MESSAGE = 'Sorry, that club was not found.'
+COMPETITION_NOT_FOUND_MESSAGE = 'Sorry, that competition was not found.'
 
 
 def loadClubs():
@@ -22,6 +24,16 @@ def loadCompetitions():
 
 def findClubByEmail(email, listOfClubs):
     return next((club for club in listOfClubs if club['email'] == email), None)
+
+
+def findClubByName(name, listOfClubs):
+    return next((club for club in listOfClubs if club['name'] == name), None)
+
+
+def findCompetitionByName(name, listOfCompetitions):
+    return next(
+        (comp for comp in listOfCompetitions if comp['name'] == name), None
+    )
 
 
 app = Flask(__name__)
@@ -45,18 +57,21 @@ def showSummary():
 
 @app.route('/book/<competition>/<club>')
 def book(competition,club):
-    foundClub = [c for c in clubs if c['name'] == club][0]
-    foundCompetition = [c for c in competitions if c['name'] == competition][0]
+    foundClub = findClubByName(club, clubs)
+    foundCompetition = findCompetitionByName(competition, competitions)
+    if foundClub is None:
+        flash(CLUB_NOT_FOUND_MESSAGE)
+        return redirect(url_for('index'))
+    if foundCompetition is None:
+        return renderSummaryError(
+            COMPETITION_NOT_FOUND_MESSAGE, foundClub, 404
+        )
     if isPastCompetition(foundCompetition):
         return renderSummaryError(PAST_COMPETITION_MESSAGE, foundClub)
-    if foundClub and foundCompetition:
-        return render_template(
-            'booking.html', club=foundClub, competition=foundCompetition,
-            maxPlaces=maxPlacesBookable(foundClub, foundCompetition)
-        )
-    else:
-        flash("Something went wrong-please try again")
-        return render_template('welcome.html', club=club, competitions=competitions)
+    return render_template(
+        'booking.html', club=foundClub, competition=foundCompetition,
+        maxPlaces=maxPlacesBookable(foundClub, foundCompetition)
+    )
 
 
 @app.template_global()
@@ -65,11 +80,11 @@ def isPastCompetition(competition, now=None):
     return date < (now or datetime.now())
 
 
-def renderSummaryError(message, club):
+def renderSummaryError(message, club, status=400):
     flash(message)
     return render_template(
         'welcome.html', club=club, competitions=competitions
-    ), 400
+    ), status
 
 
 def hasEnoughPoints(club, placesRequired):
@@ -135,8 +150,15 @@ def parsePlacesRequired(value):
 
 @app.route('/purchasePlaces',methods=['POST'])
 def purchasePlaces():
-    competition = [c for c in competitions if c['name'] == request.form['competition']][0]
-    club = [c for c in clubs if c['name'] == request.form['club']][0]
+    competition = findCompetitionByName(
+        request.form.get('competition'), competitions
+    )
+    club = findClubByName(request.form.get('club'), clubs)
+    if club is None:
+        flash(CLUB_NOT_FOUND_MESSAGE)
+        return redirect(url_for('index'))
+    if competition is None:
+        return renderSummaryError(COMPETITION_NOT_FOUND_MESSAGE, club, 404)
     placesRequired = parsePlacesRequired(request.form.get('places'))
     if isPastCompetition(competition):
         return renderSummaryError(PAST_COMPETITION_MESSAGE, club)
