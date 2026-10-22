@@ -165,7 +165,15 @@ def purchasePlaces():
     return render_template('welcome.html', club=club, competitions=competitions)
 
 
-# TODO: Add route for points display
+def sortClubsByPoints(listOfClubs):
+    return sorted(
+        listOfClubs, key=lambda club: (-int(club['points']), club['name'])
+    )
+
+
+@app.route('/pointsBoard')
+def pointsBoard():
+    return render_template('points.html', clubs=sortClubsByPoints(clubs))
 
 
 @app.route('/logout')
