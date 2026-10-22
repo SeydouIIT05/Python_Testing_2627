@@ -3,6 +3,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUDLFT Registration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <h1>Welcome to the GUDLFT Registration Portal!</h1>
@@ -18,7 +19,7 @@
     Please enter your secretary email to continue:
     <form action="showSummary" method="post">
         <label for="email">Email:</label>
-        <input type="email" name="email" id=""/>
+        <input type="email" name="email" id="email"/>
         <button type="submit">Enter</button>
     </form>
     <p><a href="{{url_for('pointsBoard')}}">See the clubs points board</a></p>

@@ -140,6 +140,14 @@ def renderBookingError(message, club, competition):
     ), 400
 
 
+def bookingConfirmationMessage(placesRequired, competition):
+    plural = 's' if placesRequired > 1 else ''
+    return (
+        f'Great-booking complete! {placesRequired} place{plural} booked '
+        f"for {competition['name']}."
+    )
+
+
 def parsePlacesRequired(value):
     try:
         places = int(value)
@@ -183,7 +191,7 @@ def purchasePlaces():
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     deductPoints(club, placesRequired)
     recordBooking(club, competition, placesRequired)
-    flash('Great-booking complete!')
+    flash(bookingConfirmationMessage(placesRequired, competition))
     return render_template('welcome.html', club=club, competitions=competitions)
 
 

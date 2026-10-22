@@ -3,6 +3,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking for {{competition['name']}} || GUDLFT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <h2>{{competition['name']}}</h2>
@@ -15,12 +16,18 @@
        </ul>
     {% endif%}
     {%endwith%}
-    Places available: {{competition['numberOfPlaces']}}
+    <p>Places available: {{competition['numberOfPlaces']}}</p>
+    <p>Points available: {{club['points']}}</p>
+    {% if maxPlaces > 0 %}
+    <p>You can book up to {{maxPlaces}} place{{ 's' if maxPlaces > 1 else '' }}.</p>
     <form action="/purchasePlaces" method="post">
         <input type="hidden" name="club" value="{{club['name']}}">
         <input type="hidden" name="competition" value="{{competition['name']}}">
-        <label for="places">How many places?</label><input type="number" name="places" id="" min="1" max="{{maxPlaces}}" required/>
+        <label for="places">How many places?</label><input type="number" name="places" id="places" min="1" max="{{maxPlaces}}" required/>
         <button type="submit">Book</button>
     </form>
+    {% else %}
+    <p>No more places can be booked for your club in this competition.</p>
+    {% endif %}
 </body>
 </html>

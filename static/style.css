@@ -1,0 +1,54 @@
+/* Charte en niveaux de gris commune à toutes les pages (cf. spécifications, phase 0) */
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #222;
+    background-color: #fff;
+    max-width: 720px;
+    margin: 2em auto;
+    padding: 0 1em;
+    line-height: 1.5;
+}
+
+h1, h2, h3 {
+    color: #111;
+}
+
+a {
+    color: #333;
+}
+
+input, button {
+    font: inherit;
+    padding: 4px 8px;
+    border: 1px solid #888;
+    border-radius: 3px;
+}
+
+button {
+    background-color: #e6e6e6;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #ccc;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #888;
+    padding: 4px 12px;
+    text-align: left;
+}
+
+th {
+    background-color: #ddd;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #ccc;
+}
