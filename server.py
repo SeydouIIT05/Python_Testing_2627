@@ -1,7 +1,11 @@
 import json
+from datetime import datetime
 from flask import Flask,render_template,request,redirect,flash,url_for
 
 MAX_PLACES_PER_COMPETITION = 12
+PAST_COMPETITION_MESSAGE = (
+    'Booking is closed: this competition has already taken place.'
+)
 
 
 def loadClubs():
@@ -43,6 +47,8 @@ def showSummary():
 def book(competition,club):
     foundClub = [c for c in clubs if c['name'] == club][0]
     foundCompetition = [c for c in competitions if c['name'] == competition][0]
+    if isPastCompetition(foundCompetition):
+        return renderSummaryError(PAST_COMPETITION_MESSAGE, foundClub)
     if foundClub and foundCompetition:
         return render_template(
             'booking.html', club=foundClub, competition=foundCompetition,
@@ -51,6 +57,19 @@ def book(competition,club):
     else:
         flash("Something went wrong-please try again")
         return render_template('welcome.html', club=club, competitions=competitions)
+
+
+@app.template_global()
+def isPastCompetition(competition, now=None):
+    date = datetime.strptime(competition['date'], '%Y-%m-%d %H:%M:%S')
+    return date < (now or datetime.now())
+
+
+def renderSummaryError(message, club):
+    flash(message)
+    return render_template(
+        'welcome.html', club=club, competitions=competitions
+    ), 400
 
 
 def hasEnoughPoints(club, placesRequired):
@@ -111,6 +130,8 @@ def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     placesRequired = int(request.form['places'])
+    if isPastCompetition(competition):
+        return renderSummaryError(PAST_COMPETITION_MESSAGE, club)
     if not hasEnoughPlaces(competition, placesRequired):
         return renderBookingError(
             placesLeftMessage(competition), club, competition
