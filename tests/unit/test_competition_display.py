@@ -1,5 +1,7 @@
 from datetime import datetime
 
+import pytest
+
 from server import competitionStatus, displayDate
 
 
@@ -40,3 +42,18 @@ def test_date_is_displayed_in_words():
 
 def test_single_digit_day_has_no_leading_zero():
     assert displayDate("2027-02-05 09:05:00") == "5 February 2027, 09:05"
+
+
+@pytest.mark.parametrize(
+    "date, expected",
+    [
+        ("2020-03-27 10:00:00", "27 March 2020, 10:00"),
+        ("2020-10-22 13:30:00", "22 October 2020, 13:30"),
+        ("2027-01-01 00:00:00", "1 January 2027, 00:00"),
+        ("2027-12-31 23:59:00", "31 December 2027, 23:59"),
+        ("2028-02-29 18:45:00", "29 February 2028, 18:45"),
+        ("2027-06-15 07:00:00", "15 June 2027, 07:00"),
+    ],
+)
+def test_dates_of_the_year(date, expected):
+    assert displayDate(date) == expected
