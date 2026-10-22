@@ -84,6 +84,12 @@ Pages principales :
 - `/pointsBoard` : tableau public des points de tous les clubs (sans connexion) ;
 - `/logout` : déconnexion.
 
+Interface : toutes les pages héritent du gabarit `templates/base.html` (en-tête,
+messages, pied de page) et partagent la feuille de style `static/style.css` : coins
+carrés, bleu marine (`#1F3A5F`), or sourd (`#B08D57`) et fond blanc cassé (`#F4F2EE`).
+Les messages de réussite s'affichent en vert, les erreurs en brique, et chaque
+compétition porte un badge d'état (*Open*, *Full* ou *Booking closed*).
+
 ## 4. Données
 
 Pour rester léger, l'application n'utilise pas de base de données : les données sont lues
@@ -120,8 +126,8 @@ Les tests sont rangés par type, comme demandé par le guide de développement :
 
 | Dossier | Type | Nombre |
 |---|---|---|
-| `tests/unit/` | Tests unitaires (fonctions isolées) | 137 |
-| `tests/integration/` | Tests d'intégration (routes Flask via le client de test) | 60 |
+| `tests/unit/` | Tests unitaires (fonctions isolées) | 150 |
+| `tests/integration/` | Tests d'intégration (routes Flask via le client de test) | 75 |
 | `tests/functional/` | Tests fonctionnels (parcours complets dans Edge) | 7 |
 | `tests/performance/` | Tests de performance (Locust) | – |
 
@@ -191,7 +197,7 @@ navigateur) :
 
 | Rapport | Fichier | Résultat |
 |---|---|---|
-| Tests | `reports/tests/report.html` | 204 tests réussis |
+| Tests | `reports/tests/report.html` | 232 tests réussis |
 | Couverture | `reports/coverage/index.html` | 100 % de `server.py` (objectif : 60 %) |
 | Performance | `reports/performance/locust_report.html` | Seuils respectés |
 | flake8 | `reports/flake8/index.html` | 0 alerte |
@@ -233,6 +239,7 @@ Améliorations :
 | `amelioration/performance-tests` | Tests de performance Locust |
 | `amelioration/reports` | Rapports de tests, de couverture et flake8 |
 | `amelioration/readme` | Ce README |
+| `amelioration/interface-design` | Nouveau design : gabarit commun, coins carrés, palette marine et or, messages et badges colorés |
 
 ## 11. Conventions et organisation Git
 
