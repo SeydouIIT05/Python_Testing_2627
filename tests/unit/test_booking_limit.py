@@ -47,14 +47,16 @@ def test_adds_new_booking_to_previous_ones():
 
 
 def test_max_places_is_limited_by_club_points():
-    assert maxPlacesBookable({"name": "Iron Temple", "points": "4"}, {}) == 4
+    club = {"name": "Iron Temple", "points": "4"}
+
+    assert maxPlacesBookable(club, {"numberOfPlaces": "25"}) == 4
 
 
 def test_max_places_is_limited_to_12():
-    assert maxPlacesBookable(SIMPLY_LIFT, {}) == 12
+    assert maxPlacesBookable(SIMPLY_LIFT, {"numberOfPlaces": "25"}) == 12
 
 
 def test_max_places_accounts_for_previous_bookings():
-    competition = {"bookings": {"Simply Lift": 10}}
+    competition = {"numberOfPlaces": "25", "bookings": {"Simply Lift": 10}}
 
     assert maxPlacesBookable(SIMPLY_LIFT, competition) == 2

@@ -75,9 +75,27 @@ def recordBooking(club, competition, placesRequired):
     bookings[club['name']] = bookings.get(club['name'], 0) + placesRequired
 
 
+def hasEnoughPlaces(competition, placesRequired):
+    return placesRequired <= int(competition['numberOfPlaces'])
+
+
+def placesLeftMessage(competition):
+    placesLeft = int(competition['numberOfPlaces'])
+    if placesLeft == 0:
+        return 'This competition is full.'
+    return (
+        'Not enough places left in this competition: '
+        f'{placesLeft} available.'
+    )
+
+
 def maxPlacesBookable(club, competition):
     alreadyBooked = placesBookedBy(club, competition)
-    return min(int(club['points']), MAX_PLACES_PER_COMPETITION - alreadyBooked)
+    return min(
+        int(club['points']),
+        MAX_PLACES_PER_COMPETITION - alreadyBooked,
+        int(competition['numberOfPlaces']),
+    )
 
 
 def renderBookingError(message, club, competition):
@@ -93,6 +111,10 @@ def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     placesRequired = int(request.form['places'])
+    if not hasEnoughPlaces(competition, placesRequired):
+        return renderBookingError(
+            placesLeftMessage(competition), club, competition
+        )
     if not hasEnoughPoints(club, placesRequired):
         return renderBookingError(
             'Not enough points to book that many places.', club, competition
