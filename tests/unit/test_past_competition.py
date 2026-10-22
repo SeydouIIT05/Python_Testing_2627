@@ -1,5 +1,7 @@
 from datetime import datetime
 
+import pytest
+
 from server import isPastCompetition
 
 
@@ -32,3 +34,22 @@ def test_uses_current_date_by_default_for_past_competition():
 
 def test_uses_current_date_by_default_for_future_competition():
     assert not isPastCompetition(competition_on("2999-01-01 10:00:00"))
+
+
+@pytest.mark.parametrize(
+    "date, expected",
+    [
+        ("2026-10-22 11:59:59", True),
+        ("2026-10-22 12:00:00", False),
+        ("2026-10-22 12:00:01", False),
+        ("2025-12-31 23:59:59", True),
+        ("2027-01-01 00:00:00", False),
+    ],
+)
+def test_boundary_dates(date, expected):
+    assert isPastCompetition(competition_on(date), NOW) is expected
+
+
+def test_invalid_date_format_is_rejected():
+    with pytest.raises(ValueError):
+        isPastCompetition(competition_on("22/10/2026"), NOW)
